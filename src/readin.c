@@ -6,6 +6,9 @@
 [A-Z] will be unchanged [a-z] will be converter tu upper case. All other symbols will be ignored. Content of file will be writen to a shared memory for processing by caesar.
 @date 19.05.11
 */
+
+
+/*gegenseitiges terminieren im fehlerfall sollte durch die abfragen auf P und V sichergestellt sein*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,17 +19,23 @@
 #include <sys/shm.h> 
 #include "common.h"
 #include <sem182.h>
+#include <ctype.h>
 
 
 
 char* prog;
+share* mshare = NULL;
+FILE* in = NULL;
 
 /**
 @brief This function cleans up the mess on errors.
 @details Is called by merror() and cleanupsig() to free all resources.
 */
 void cleanup(void){
-
+	free_share(mshare);
+	if(in != NULL){
+		(void)fclose(in);
+	}	
 }
 
 
@@ -39,7 +48,47 @@ static void cleanupsig(int nSignal){
 	(void)cleanup();
 	exit(EXIT_FAILURE);
 }
+/**
+@brief Reads form file writes to shared memory
+@detail This function opens a file reads it line by line than writes it to shm as soon as shm is available. Contains critical section! Lines <1024 ASCII signs.
+@param infile Location of the input file 
+*/
+static void read_write(char* infile){
 
+	char buffer[STR_MAX];
+	int i;
+
+	if((in = fopen((const char *) infile,"r")) == (FILE*) NULL){
+		(void)merror(prog, "Failed to open file");
+	}
+	
+	while(fgets(buffer,STR_MAX,in) != NULL){
+		if(P(mshare->semidr) < 0){
+			(void)merror(prog,"Semaphore wait failed");
+		}
+			
+			for(i = 0;i < (strlen(buffer)+2); i++){/*strlen counts w/o /0 -> +1; < ->+2*/
+				mshare->shm->data[i] = toupper(buffer[i]);
+			}
+		
+		if(V(mshare->semidc) < 0){
+			(void)merror(prog,"Failed to signal Semaphore to Caesar");
+		}
+	}
+
+	if(P(mshare->semidr) < 0){
+		(void)merror(prog,"Semaphore wait failed");
+	}
+
+	mshare->shm->state = 1;
+	
+	if(V(mshare->semidc) < 0){
+		(void)merror(prog,"Failed to signal Semaphore to Caesar");
+	}
+	
+	(void)fclose(in);
+	in = NULL;
+}
 
 
 /**
@@ -57,9 +106,12 @@ int main(int argc,char* argv[]){
 	prog = argv[0];
 
 	if(argc != 2){
-		(void)fprintf(stderr,"Usage: %s <filename>",argv[0]);
+		(void)fprintf(stderr,"Usage: %s <filename>\n",argv[0]);
 		exit(EXIT_FAILURE); /*no cleanup nothing done up until now*/
 	}
+	mshare = check_first();
+	(void)read_write(argv[1]);
+	/*deletion of share will be handled by caesar*/
 
 	exit(EXIT_SUCCESS);
 

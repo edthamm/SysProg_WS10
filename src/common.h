@@ -24,9 +24,10 @@
 #define SEM_KEY_R 4598
 #define SEM_KEY_C 8954
 
+
 typedef struct shm{
-	int state;
-	int data[STR_MAX];
+	int state;/*0 if there is still work to be done 1 othewise; is there a nice way to document this in doxy?*/
+	char data[STR_MAX];
 } shm;
 
 typedef shm *shmp;
@@ -41,5 +42,6 @@ typedef struct share{
 typedef share *sharep;
 
 void merror(char* prog,char *s);
-share* checkfirst(void);
+share* check_first(void);
+int free_share(share* del);
 #endif /*COMMON_H*/

@@ -85,37 +85,66 @@ static share* attach(void){
 static share* create(void){
 	share* ret = new_share();
 
-	if((ret->semidc = seminit(SEM_KEY_C,PERM,0)) < 0){
+	if((ret->semidc = seminit(SEM_KEY_C,666,0)) < 0){
 		(void)free(ret);
 		(void)merror(prog,"Failed to initialize SEM_C");
 	}
-	if((ret->semidr = seminit(SEM_KEY_R,PERM,1)) < 0){
-		(void)semrm(ret->semidc);		
-		(void)free(ret);
+	if((ret->semidr = seminit(SEM_KEY_R,666,1)) < 0){
+		(void)free_share(ret);
 		(void)merror(prog,"Failes to initalize SEM_R");
 	}
-	if((ret->shmid = shmget(SHM_KEY,sizeof(shm),IPC_CREATE|PERMISSION)) < 0){
-		(void)semrm(ret->semidc);
-		(void)semrm(ret->semidr);		
-		(void)free(ret);
+	if((ret->shmid = shmget(SHM_KEY,sizeof(shm),IPC_CREAT)) < 0){
+		(void)free_share(ret);
 		(void)merror(prog,"Failed to initialize SHM");
 	}
-	if((ret->shm = (shm*) shmat(SHM_KEY,NULL,0)) == (shm*) -1){
-		(void)semrm(ret->semidc);
-		(void)semrm(ret->semidr);
-		(void)shmctl(ret->shmid,IPC_RMID,NULL);		
-		(void)free(ret);
+	if((ret->shm = (shm*) shmat(ret->shmid,NULL,0)) == (shm*) -1){
+		(void)free_share(ret);
 		(void)merror(prog,"Failed to attach SHM");
-	}		
+	}
+	/*indicates working state*/
+	ret->shm->state = 0;		
  
 	return ret;
 }
 
 /**
-@brief Checks if share has been created before if so connects to resources else creates resources.
-@return Returns a newly created share if no instance of share has been started connects to existing and returns it otherwise otherwise.
+@brief Frees a share.
+@detail Detaches shm than deletes shm than deletes sem, checks if they exist first. Handles NULL input.
+@return 0 in case of success,-1 on failing to free a sem, -2 on failing to detach shm, -3 on failing to delete shm.
 */
-share* checkfirst(void){
+int free_share(share* del){
+
+	if(del != (share*) NULL){
+		if(del->shm != NULL){
+			if(shmdt((void*)del->shm) < 0){
+				return -2;
+			}
+		}
+		if(del->shmid != 0){
+			if(shmctl(del->shmid,IPC_RMID,NULL) < 0){
+				return -3;
+			}
+		}
+		if(del->semidc != 0){
+			if(semrm(del->semidc) < 0){
+				return -1;	
+			}
+		}
+		if(del->semidr != 0){
+			if(semrm(del->semidr) < 0){
+				return -1;	
+			}
+		}		
+		(void)free(del);
+	}
+	return 0;
+}
+
+/**
+@brief Checks if share has been created before if so connects to resources else creates resources.
+@return Returns a newly created share if no instance of share has been started connects to existing and returns it otherwise.
+*/
+share* check_first(void){
 	share* ret = (share*) NULL;
 
 	if((ret = attach()) != (share*) NULL){
