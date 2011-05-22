@@ -93,7 +93,7 @@ static share* create(void){
 		(void)free_share(ret);
 		(void)merror(prog,"Failes to initalize SEM_R");
 	}
-	if((ret->shmid = shmget(SHM_KEY,sizeof(shm),IPC_CREAT)) < 0){
+	if((ret->shmid = shmget(SHM_KEY,sizeof(shm),(IPC_CREAT|0400|0200))) < 0){
 		(void)free_share(ret);
 		(void)merror(prog,"Failed to initialize SHM");
 	}

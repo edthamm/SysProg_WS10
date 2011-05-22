@@ -52,7 +52,7 @@ static void mencrypt(long l){
 	}
 		if(mshare->shm->state == 0){
 			for(i = 0;i < (strlen(mshare->shm->data)+2); i++){
-				buffer[i] = (((mshare->shm->data[i]+l)%25)+65); /*i am not sure about this line*/
+				buffer[i] = (((mshare->shm->data[i]+l)%25)); /*i am not sure about this line*/
 			}
 		}
 		else{
@@ -90,6 +90,7 @@ int main(int argc,char* argv[]){
 		merror(prog, "Enter an integer between 1 and 25");/*did they really mean between???*/
 	}
 
+	mshare = check_first();
 	(void)mencrypt(l);
 	(void)cleanup();
 	
