@@ -77,7 +77,7 @@ static void read_write(char* infile){
 	}
 
 	if(P(mshare->semidr) < 0){
-		(void)merror(prog,"Semaphore wait failed");
+		(void)merror(prog,"Semaphore wait for state change failed");
 	}
 
 	mshare->shm->state = 1;

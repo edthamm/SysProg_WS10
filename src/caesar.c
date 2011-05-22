@@ -47,22 +47,23 @@ static void mencrypt(long l){
 	char buffer[STR_MAX];
 	int i;
 
-	if(P(mshare->semidc) < 0){
-		merror(prog,"Failed to wait on sem");
-	}
-		if(mshare->shm->state == 0){
-			for(i = 0;i < (strlen(mshare->shm->data)+2); i++){
-				buffer[i] = (((mshare->shm->data[i]+l)%25)); /*i am not sure about this line*/
+	while(1==1){	
+		if(P(mshare->semidc) < 0){
+			merror(prog,"Failed to wait on sem");
+		}
+			if(mshare->shm->state == 0){
+				for(i = 0;i < (strlen(mshare->shm->data)+2); i++){
+					buffer[i] = (((mshare->shm->data[i]+l)%2)+65); /*i am not sure about this line*/
+				}
 			}
+			else{
+				return;
+			}
+		if(V(mshare->semidr) < 0){
+			merror(prog,"Failed to signal Semaphore to readin");
 		}
-		else{
-			(void)fprintf(stdout,"%s",buffer);
-			return;
-		}
-	if(V(mshare->semidr) < 0){
-		merror(prog,"Failed to signal Semaphore to readin");
+		(void)fprintf(stdout,"%s",buffer);
 	}
-	(void)fprintf(stdout,"%s",buffer);
 }
 
 /**
