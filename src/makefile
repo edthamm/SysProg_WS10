@@ -19,7 +19,7 @@ readin: readin.c common.h common.o
 	$(CC) $(CFLAGS) -o readin readin.c common.o $(LL)
 	
 common.o: common.c common.h
-	$(CC) $(CFLAGS) -c -o common.o common.c $(LL)
+	$(CC) $(CFLAGS) -c -o common.o common.c
 
 clean: 
 	-rm -f *.o readin caesar
