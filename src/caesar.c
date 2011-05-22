@@ -46,7 +46,7 @@ static char* caesar_cipher(long s, char* buffer){
 		for(i = 0;i <= (strlen(mshare->shm->data)); i++){
 			buffer[i] = (((mshare->shm->data[i]-65+s)%26)+65); /*i am not sure about this line*/
 		}
-		buffer[strlen(mshare->shm->data)+1]='\0';
+		buffer[strlen(mshare->shm->data)-1]='\0';
 		return buffer;
 	}
 	else{
