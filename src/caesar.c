@@ -39,12 +39,19 @@ static void cleanupsig(int nSignal){
 	exit(EXIT_FAILURE);
 }
 
+/**
+@brief Handles the actual encrytption/decryption in this module. Is critical.
+@param s The amount of shift to be done.
+@param buffer The pointer to the string to do the shift on.
+@return Returns a pointer to the shifted string, or NULL if the work is done.
+*/
+
 static char* caesar_cipher(long s, char* buffer){
 	int i;
 
 	if(mshare->shm->state == 0){
 		for(i = 0;i <= (strlen(mshare->shm->data)); i++){
-			buffer[i] = (((mshare->shm->data[i]-65+s)%26)+65); /*i am not sure about this line*/
+			buffer[i] = (((mshare->shm->data[i]-65+s)%26)+65);
 		}
 		buffer[strlen(mshare->shm->data)]='\0';
 		return buffer;
@@ -56,7 +63,7 @@ static char* caesar_cipher(long s, char* buffer){
 
 /**
 @brief This function shifts code in shm by i and prints to stdout.
-@detail Contains critical.
+@details Contains critical.
 */
 static void mencrypt(long l){
 	char* b;

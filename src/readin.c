@@ -50,7 +50,7 @@ static void cleanupsig(int nSignal){
 }
 /**
 @brief Reads form file writes to shared memory
-@detail This function opens a file reads it line by line than writes it to shm as soon as shm is available. Contains critical section! Lines <1024 ASCII signs.
+@details This function opens a file reads it line by line than writes it to shm as soon as shm is available. Contains critical section! Lines <1024 ASCII signs.
 @param infile Location of the input file 
 */
 static void read_write(char* infile){
@@ -67,7 +67,7 @@ static void read_write(char* infile){
 			(void)merror(prog,"Semaphore wait failed");
 		}
 			j = 0;
-			for(i = 0;i < (strlen(buffer)+1); i++){/*strlen counts w/o /0 -> +1; < ->+2*/
+			for(i = 0;i < (strlen(buffer)+1); i++){
 				if((buffer[i] >= 65 && buffer[i] <= 90) || (buffer[i] >= 97 && buffer[i] <= 122)){
 					mshare->shm->data[i-j] = toupper(buffer[i]);
 				}

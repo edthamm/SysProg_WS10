@@ -2,7 +2,7 @@
 @file common.c
 @author Eduard Thamm
 @brief Contains all routines common to both caesar and readin.
-@detail Makes my life easier.
+@details Makes my life easier.
 @date 20.5.11
 */
 
@@ -23,6 +23,7 @@ extern char* prog;
 /**
 @brief Eases the handling of errors throughout the programm.
 @param s The String that shall be printed to stderr.
+@param prog The name of the programm causing the error.
 */
 void merror(char* prog,char *s){
 	(void)fprintf(stderr,"%s: A fatal error has occured: %s.\nCan not continue...\nExiting...\n",prog,s);
@@ -48,7 +49,7 @@ static share* new_share(void){
 
 /**
 @brief Trys to attatch to a shared memory and semaphore.
-@detail This function impl. assumes that if a shm could be attached thet has to be a sem and throws an error otherwise.
+@details This function impl. assumes that if a shm could be attached thet has to be a sem and throws an error otherwise.
 @return Returns NULL if no share was found share* otherwise.
 */
 static share* attach(void){
@@ -79,7 +80,7 @@ static share* attach(void){
 
 /**
 @brief Creates a shared memory segment and a semaphore.
-@detail Creates semapores first then shm see attach.
+@details Creates semapores first then shm see attach.
 @return A share containing 2 semaphores and one shared memory segment, or terminates.
 */
 static share* create(void){
@@ -109,7 +110,7 @@ static share* create(void){
 
 /**
 @brief Frees a share.
-@detail Detaches shm than deletes shm than deletes sem, checks if they exist first. Handles NULL input.
+@details Detaches shm than deletes shm than deletes sem, checks if they exist first. Handles NULL input.
 @return 0 in case of success,-1 on failing to free a sem, -2 on failing to detach shm, -3 on failing to delete shm.
 */
 int free_share(share* del){
