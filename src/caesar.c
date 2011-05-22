@@ -39,32 +39,50 @@ static void cleanupsig(int nSignal){
 	exit(EXIT_FAILURE);
 }
 
+static char* caesar_cipher(long s, char* buffer){
+	int i;
+
+	if(mshare->shm->state == 0){
+		for(i = 0;i <= (strlen(mshare->shm->data)); i++){
+			buffer[i] = (((mshare->shm->data[i]-65+s)%26)+65); /*i am not sure about this line*/
+		}
+		buffer[strlen(mshare->shm->data)+1]='\0';
+		return buffer;
+	}
+	else{
+		return NULL;
+	}
+}
+
 /**
 @brief This function shifts code in shm by i and prints to stdout.
 @detail Contains critical.
 */
 static void mencrypt(long l){
+	char* b;
 	char buffer[STR_MAX];
-	int i;
 
+	/*doing it this way because a loop looking at state would have to wait for sem to be good...*/
 	while(1==1){	
 		if(P(mshare->semidc) < 0){
 			merror(prog,"Failed to wait on sem");
 		}
-			if(mshare->shm->state == 0){
-				for(i = 0;i < (strlen(mshare->shm->data)+2); i++){
-					buffer[i] = (((mshare->shm->data[i]+l)%2)+65); /*i am not sure about this line*/
-				}
-			}
-			else{
-				return;
-			}
+
+		b = caesar_cipher(l,buffer);
+
 		if(V(mshare->semidr) < 0){
 			merror(prog,"Failed to signal Semaphore to readin");
 		}
-		(void)fprintf(stdout,"%s",buffer);
+		if(b != NULL){
+			(void)fprintf(stdout,"%s\n",buffer);
+		}
+		else{
+			return;
+		}
 	}
 }
+
+
 
 /**
 @brief The main function. Handling arguments, sorting through the chaos.

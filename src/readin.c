@@ -56,7 +56,7 @@ static void cleanupsig(int nSignal){
 static void read_write(char* infile){
 
 	char buffer[STR_MAX];
-	int i;
+	int i,j;
 
 	if((in = fopen((const char *) infile,"r")) == (FILE*) NULL){
 		(void)merror(prog, "Failed to open file");
@@ -66,10 +66,22 @@ static void read_write(char* infile){
 		if(P(mshare->semidr) < 0){
 			(void)merror(prog,"Semaphore wait failed");
 		}
-			
+			j = 0;
 			for(i = 0;i < (strlen(buffer)+2); i++){/*strlen counts w/o /0 -> +1; < ->+2*/
-				mshare->shm->data[i] = toupper(buffer[i]);
+				if((buffer[i] >= 65 && buffer[i] <= 90) || (buffer[i] >= 97 && buffer[i] <= 122)){
+					mshare->shm->data[i-j] = toupper(buffer[i]);
+				}
+				else{
+					j++;
+				}
 			}
+			if(j>0){
+				mshare->shm->data[strlen(buffer)+2-j]='\0';
+			}
+			else{
+				mshare->shm->data[strlen(buffer)+1]='\0';
+			}
+			printf("%s\n",mshare->shm->data);
 		
 		if(V(mshare->semidc) < 0){
 			(void)merror(prog,"Failed to signal Semaphore to Caesar");
