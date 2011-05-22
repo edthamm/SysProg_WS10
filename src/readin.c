@@ -67,7 +67,7 @@ static void read_write(char* infile){
 			(void)merror(prog,"Semaphore wait failed");
 		}
 			j = 0;
-			for(i = 0;i < (strlen(buffer)+2); i++){/*strlen counts w/o /0 -> +1; < ->+2*/
+			for(i = 0;i < (strlen(buffer)+1); i++){/*strlen counts w/o /0 -> +1; < ->+2*/
 				if((buffer[i] >= 65 && buffer[i] <= 90) || (buffer[i] >= 97 && buffer[i] <= 122)){
 					mshare->shm->data[i-j] = toupper(buffer[i]);
 				}
@@ -76,10 +76,7 @@ static void read_write(char* infile){
 				}
 			}
 			if(j>0){
-				mshare->shm->data[strlen(buffer)+2-j]='\0';
-			}
-			else{
-				mshare->shm->data[strlen(buffer)+1]='\0';
+				mshare->shm->data[strlen(buffer)+1-j]='\0';
 			}
 			printf("%s\n",mshare->shm->data);
 		
