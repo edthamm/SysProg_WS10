@@ -1,0 +1,117 @@
+
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+char str[41],str2[41];
+
+static void compare(void){
+	int i = 0;
+	for(i = strlen(str); i>1; i--){
+		if(str2[strlen(str2) - i] != str[i-2]){
+			printf("%s is not a palindrome!\n",str);
+			exit(0);
+		}
+	}
+	printf("%s is a palindrome!\n",str);
+	exit(0);
+}
+
+static void read(void){
+	(void)printf("Enter text now:\n");
+	fgets(str, 40, stdin);
+}
+
+
+static void ignoreall(void){
+	int i = 0, j = 0;
+
+	(void)read();
+	for ( i = 0; i<strlen(str); i++){
+		str[i]=toupper(str[i]);
+	}
+
+	for ( i = 0; i<strlen(str); i++){
+		if(str[i]!=' '){
+			str2[j] = str[i];
+			j++;
+		}
+	}
+	strcpy(str,str2);
+	(void)compare();
+	
+}
+
+static void ignorecase(void){
+	int i = 0;
+
+	(void)read();
+	for ( i = 0; i<strlen(str); i++){
+		str[i]=toupper(str[i]);
+	}
+	strcpy(str2,str);
+	(void)compare();
+}
+
+static void noopt(){
+	(void)read();
+	strcpy(str2,str);
+	(void)compare();
+}
+
+static void ignorespace(void){
+	int i = 0, j = 0;	
+
+	read();
+	for ( i = 0; i<strlen(str); i++){
+		if(str[i]!=' '){
+			str2[j] = str[i];
+			j++;
+		}
+	}
+	strcpy(str,str2);
+	compare();
+}
+
+
+
+
+int main(int argc, char *argv[]){
+	int iflag = 0, sflag = 0,opt;
+	
+
+	if(argc > 3){/*do some argument handling*/
+			(void)fprintf(stderr, "Usage: %s [-s] [-i] \n", argv[0]);
+			exit(EXIT_FAILURE);
+	}
+	while((opt=getopt(argc,argv,"si "))!=-1){
+		switch(opt){
+			case 'i':
+				iflag = 1;
+			break;
+			case 's':
+				sflag = 1;
+			break;
+			default:
+				(void)fprintf(stderr, "switch went wrong\n");
+			exit(EXIT_FAILURE);				
+		}
+	}
+
+	if(iflag == 1 && sflag == 1){
+		(void)ignoreall();
+	}
+	if(iflag == 1 && sflag == 0){
+		(void)ignorecase();
+	}
+	if(iflag == 0 && sflag == 1){
+		(void)ignorespace();
+	}
+	else{
+		(void)noopt();
+	}
+
+	(void)fprintf(stderr, "if-else went wrong\n");
+	exit(EXIT_FAILURE);
+}
